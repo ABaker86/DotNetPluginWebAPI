@@ -1,11 +1,15 @@
 # DotNetPluginWebAPI
-A web API created to move controller and business logic into separate libraries from core service. 
+A web API created to move controller and business logic into separate libraries from core service.
 
 ## Motivation
-Work-related experiences have brought to my attention many legacy systems that utilize code intended to accomplish the same task but may be written in different ways even if the code base is written in the same programming language. Ultimately this results in new and existing developers inadvertently reinventing the wheel for components and systems that have already been developed previously. Therefore, I have created a single Web API and migrated the business logic into separate libraries that can be loaded on application startup. By doing this, new developers can focus on core business logic and refrain from re-developing common cross-cutting concerns such as logging, infrastructure access (i.e. data persistence), authorization and authentication.
+Work-related experiences have brought to my attention many legacy systems that utilize code intended to accomplish the same task but may be written in different ways even if the code base is written in the same programming language.
+
+Ultimately this results in new and existing developers inadvertently reinventing the wheel for components and systems that have already been developed previously. Therefore, I have created a single Web API and migrated the business logic into separate libraries that can be loaded on application startup.
+
+By doing this, new developers can focus on core business logic and refrain from re-developing common cross-cutting concerns such as logging, infrastructure access (i.e. data persistence), authorization and authentication.
 
 [//]: # (## Build status)
- 
+
 ## Code style
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
  
@@ -33,16 +37,19 @@ public class IndividualPluginRegistry : IRegister
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IRepository, InMemoryRepository>();
-        services.AddHttpClient<UspsHttpClient>((sp, client) => 
+        services.AddHttpClient<UspsHttpClient>((sp, client) =>
         {
           var endpoints = sp.GetRequiredServices<IOptions<ProviderSettings>>().value;
           client.BaseAddress = new Uri(endpoints.Provide["Uri"];
-          client.DefaultRequestHeaders.Add("Authorization", 
-            $"Basic {Convert.ToBase64String(Encoding.Default.GetBytes($"{endpoints.Provider["ApiId"]"}:{endpoints.Provider["ApiKey"]}"))}");
-           });
+
+          var apiId = endpoints.Provider["ApiId"];
+          var apiKey = endpoints.Provider["ApiKey"];
+          var apiToken = Convert.ToBase64String(Encoding.Default.GetBytes($"{apiId}:{apiKey}"));
+          
+          client.DefaultRequestHeaders.Add("Authorization", $"Basic {apiToken}");
         }
     }
-}
+
 ```
 
 [//]: # (## Code Example)
